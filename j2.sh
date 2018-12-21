@@ -5,6 +5,8 @@ d_dir='/home/j2-template/temp'
 file='/home/j2-template/config-file/jdbc.properties.j2,/home/j2-template/jdbc.properties'
 vars_file='/home/j2-template/config-file/param.sh'
 #分割赋值源文件，目标文件
+pwd_file=pwd | awk '{print $1}'
+#echo "当前目录:" $pwd_file
 array=()
 function split(){
   split_ret=${1//=/ }
@@ -73,11 +75,11 @@ function dir_exit(){
      ls *.j2 | awk '{print $1}'| while read line
     do
       new_name=$(echo $line | sed "s/.j2//g")
-      if [ -e "$d_dir/$new_name" ];then
+      if [ -e "$dd_dir/$new_name" ];then
       echo "exit"
        else
        echo "file:-"$line"-"$new_name
-      sed 's/888888888-88899999998888/0/g' $line > $d_dir/$new_name
+      sed 's/888888888-88899999998888/0/g' $line > $dd_dir/$new_name
        fi
      
     done
@@ -91,6 +93,9 @@ function dir_config(){
    echo "源文件夹：" $s_dir
    echo "目标文件夹" $d_dir
    echo "变量文件" $vars_file
+   cd $d_dir
+   dd_dir=`pwd | awk '{print $1}'`
+   #echo "dd:"$dd_file
    # 初始化参数变量
    source $vars_file
    dir_force
@@ -104,6 +109,7 @@ function file_config(){
    echo "源文件："$source_file
    echo "目标文件"$dist_file
    echo "变量文件" $vars_file
+
    file_force
    # 初始化参数变量
    source $vars_file
@@ -119,11 +125,12 @@ function dir_create_files(){
  #   mkdir -p $d_dir
     cd $s_dir
      ls *.j2 | awk '{print $1}'| while read line
+    
     do
 
       new_name=$(echo $line | sed "s/.j2//g")
       echo "file:-"$line"-"$new_name
-      sed 's/888888888-88899999998888/0/g' $line > $d_dir/$new_name
+      sed 's/888888888-88899999998888/0/g' $line > $dd_dir/$new_name
     done
     echo "......End create config files......"
     echo ""
@@ -138,10 +145,11 @@ function dir_replace_param(){
     param=$2
     cd $s_dir
     ls *.j2 | awk '{print $1}'| while read file
+    
     do
       new_file_name=$(echo $file | sed "s/.j2//g")
       echo "-"file"-"$new_file_name
-      sed -i "s/{{${param_str}}}/${param}/g" $d_dir/${new_file_name}
+      sed -i "s/{{${param_str}}}/${param}/g" $dd_dir/${new_file_name}
     done
     return;
 }
