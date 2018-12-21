@@ -36,7 +36,6 @@ function help(){
   return ;
 }
 
-
 function file_force(){
     if $force ; then
       file_exit
@@ -88,11 +87,6 @@ function dir_exit(){
     return;
 } 
 
-
-
-
-
-
 function dir_config(){
    echo "源文件夹：" $s_dir
    echo "目标文件夹" $d_dir
@@ -117,9 +111,6 @@ function file_config(){
    file_read_and_replace_params
 }
 
-
-
-
 # 新建文件
 function dir_create_files(){
     echo ""
@@ -139,7 +130,6 @@ function dir_create_files(){
     echo ""
     return;
 } 
-
 
 # {{param}}参数替换成为真实值
 function dir_replace_param(){
@@ -184,7 +174,6 @@ function file_create_files(){
     return;
 } 
 
-
 # {{param}}参数替换成为真实值
 function file_replace_param(){
     echo "--"$1-$2
@@ -209,11 +198,6 @@ function file_read_and_replace_params(){
     done
     return;
 }
-
-
-
-
-
 
 for arg in $*
 do 
@@ -248,11 +232,7 @@ do
   esac
 done
 
-
 # main function 
-
-
-
  case $CMD in
   --d_dir)
     dir_config  
