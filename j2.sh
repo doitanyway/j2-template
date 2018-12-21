@@ -18,24 +18,80 @@ function split(){
 
 #help函数
 function help(){
-  echo ""
   echo "help cmd:"
   echo "  ./j2.sh --[options]=[options values] ... [cmd]  "
   echo ""
-  echo "[vars]"
+  echo "      [vars]"
   echo "      --force=[true/false],...     -Mandatory coverage"
-  echo "      --s_dir=[path],...    	     -*.j2 file path"
-  echo "      --d_dir=[path],...    		   -config file path	"
-  echo "      --file=[file],[file]...    	 -file config"
+  echo "      --s_dir=[path],...    	-*.j2 file path"
+  echo "      --d_dir=[path],...    		-config file path	"
+  echo "      --file=[file],[file]...    	-file config"
   echo "      --v_file=[file]              -vars config "
   echo ""
-  echo "[examples]"
+  echo "      [examples]"
   echo "         ./j2.sh --force=true    "
-  echo "         ./j2.sh --s_dir="/ddd/ddd/sss" --d_dir="/ddd/ddd"    --v_file=123.sh   "
+  echo "         ./j2.sh --s_dir="/ddd/ddd/sss" --d_dir="/ddd/ddd"   --v_file=123.sh   "
   echo "         ./j2.sh --file="/file/file.txt.j2,/file/file.txt"   --v_file=123.sh   "
   echo "         ./j2.sh --help                                                 "
   return ;
 }
+
+
+function file_force(){
+    if $force ; then
+      file_exit
+    else
+      echo "Mandatory coverage"
+    fi
+}
+
+function file_exit(){
+if [ -e "$dist_file" ];then
+      echo "exit"
+      exit
+else
+      echo "Mandatory coverage2"
+fi
+}
+
+function dir_force(){
+    if $force ; then
+      dir_exit
+    else
+      echo "Mandatory coverage"
+      dir_create_files
+    fi
+}
+
+
+# 新建文件
+function dir_exit(){
+    echo ""
+    echo "......Create config files......"
+ #   rm -rf $d_dir
+ #   mkdir -p $d_dir
+    cd $s_dir
+     ls *.j2 | awk '{print $1}'| while read line
+    do
+      new_name=$(echo $line | sed "s/.j2//g")
+      if [ -e "$d_dir/$new_name" ];then
+      echo "exit"
+       else
+       echo "file:-"$line"-"$new_name
+      sed 's/888888888-88899999998888/0/g' $line > $d_dir/$new_name
+       fi
+     
+    done
+    echo "......End create config files......"
+    echo ""
+    echo ""
+    return;
+} 
+
+
+
+
+
 
 function dir_config(){
    echo "源文件夹：" $s_dir
@@ -43,7 +99,7 @@ function dir_config(){
    echo "变量文件" $vars_file
    # 初始化参数变量
    source $vars_file
-   dir_create_files
+   dir_force
    dir_read_and_replace_params
 }
 
@@ -54,20 +110,24 @@ function file_config(){
    echo "源文件："$source_file
    echo "目标文件"$dist_file
    echo "变量文件" $vars_file
+   file_force
    # 初始化参数变量
    source $vars_file
    file_create_files
    file_read_and_replace_params
 }
 
-# dir/新建文件
+
+
+
+# 新建文件
 function dir_create_files(){
     echo ""
     echo "......Create config files......"
  #   rm -rf $d_dir
  #   mkdir -p $d_dir
     cd $s_dir
-    ls *.j2 | awk '{print $1}'| while read line
+     ls *.j2 | awk '{print $1}'| while read line
     do
 
       new_name=$(echo $line | sed "s/.j2//g")
@@ -80,7 +140,8 @@ function dir_create_files(){
     return;
 } 
 
-# dir/{{param}}参数替换成为真实值
+
+# {{param}}参数替换成为真实值
 function dir_replace_param(){
     echo "--"$1-$2
     param_str=$1
@@ -95,7 +156,7 @@ function dir_replace_param(){
     return;
 }
 
-# dir/读取参数，修改替换配置文件
+# 读取参数，修改替换配置文件
 function dir_read_and_replace_params(){
     # 从参数文件中读取参数
     cat $vars_file | grep export | sed 's/export //g' | sed 's/=.*$//g' | while read param_str
@@ -111,7 +172,8 @@ function dir_read_and_replace_params(){
     return;
 }
 
-#  file/新建文件
+
+# 新建文件
 function file_create_files(){
     echo ""
     echo "......Create config files......"
@@ -122,7 +184,8 @@ function file_create_files(){
     return;
 } 
 
-# file/{{param}}参数替换成为真实值
+
+# {{param}}参数替换成为真实值
 function file_replace_param(){
     echo "--"$1-$2
     param_str=$1
@@ -131,7 +194,7 @@ function file_replace_param(){
     return;
 }
 
-# file/读取参数，修改替换配置文件
+# 读取参数，修改替换配置文件
 function file_read_and_replace_params(){
     # 从参数文件中读取参数
     cat $vars_file | grep export | sed 's/export //g' | sed 's/=.*$//g' | while read param_str
@@ -148,29 +211,36 @@ function file_read_and_replace_params(){
 }
 
 
+
+
+
+
 for arg in $*
 do 
   split $arg
   case ${array[0]} in       
     --s_dir)
     s_dir=${array[1]}
-		#echo "s:"$s_dir
+		echo "s:"$s_dir
     ;;
     --v_file)
     vars_file=${array[1]}
-		#echo "v:"$vars_file
+		echo "v:"$vars_file
     ;;
     --d_dir)
     d_dir=${array[1]}
-		#echo "d:"$d_dir
+		echo "d:"$d_dir
     CMD=${array[0]}
     ;;
 		--file)
     file=${array[1]}
-	  #echo "f:"$file
+	  echo "f:"$file
     CMD=${array[0]}
     
     ;;
+    --force)
+     force=true
+      ;;
      --help)
          CMD=${array[0]}
 
@@ -178,7 +248,11 @@ do
   esac
 done
 
+
 # main function 
+
+
+
  case $CMD in
   --d_dir)
     dir_config  
@@ -193,3 +267,4 @@ done
     help
   ;;
 esac
+
