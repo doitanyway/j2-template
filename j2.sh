@@ -5,17 +5,18 @@ d_dir='/home/j2-template/temp'
 file='/home/j2-template/config-file/jdbc.properties.j2,/home/j2-template/jdbc.properties'
 vars_file='/home/j2-template/config-file/param.sh'
 #分割赋值源文件，目标文件
-pwd_file=pwd | awk '{print $1}'
+pwd_file=$(pwd | awk '{print $1}')
+
 #echo "当前目录:" $pwd_file
 array=()
 function split(){
   split_ret=${1//=/ }
   count=0
   for e in $split_ret
-  do 
+  do
     array[$count]=$e
     let count++
-  done  
+  done
 }
 
 #help函数
@@ -81,13 +82,13 @@ function dir_exit(){
        echo "file:-"$line"-"$new_name
       sed 's/888888888-88899999998888/0/g' $line > $dd_dir/$new_name
        fi
-     
+
     done
     echo "......End create config files......"
     echo ""
     echo ""
     return;
-} 
+}
 
 function dir_config(){
    echo "源文件夹：" $s_dir
@@ -95,15 +96,18 @@ function dir_config(){
    echo "变量文件" $vars_file
    cd $d_dir
    dd_dir=`pwd | awk '{print $1}'`
+   echo "111:"$pwd_file
+   cd $pwd_file
    #echo "dd:"$dd_file
    # 初始化参数变量
+   pwd
    source $vars_file
    dir_force
    dir_read_and_replace_params
 }
 
 function file_config(){
-   rh=(${file//,/ })  
+   rh=(${file//,/ })
    source_file=${rh[0]}
    dist_file=${rh[1]}
    echo "源文件："$source_file
@@ -125,7 +129,7 @@ function dir_create_files(){
  #   mkdir -p $d_dir
     cd $s_dir
      ls *.j2 | awk '{print $1}'| while read line
-    
+
     do
 
       new_name=$(echo $line | sed "s/.j2//g")
@@ -136,16 +140,17 @@ function dir_create_files(){
     echo ""
     echo ""
     return;
-} 
+}
 
 # {{param}}参数替换成为真实值
 function dir_replace_param(){
     echo "--"$1-$2
     param_str=$1
     param=$2
+    cd ${pwd_file}
     cd $s_dir
     ls *.j2 | awk '{print $1}'| while read file
-    
+
     do
       new_file_name=$(echo $file | sed "s/.j2//g")
       echo "-"file"-"$new_file_name
@@ -157,6 +162,7 @@ function dir_replace_param(){
 # 读取参数，修改替换配置文件
 function dir_read_and_replace_params(){
     # 从参数文件中读取参数
+    cd ${pwd_file}
     cat $vars_file | grep export | sed 's/export //g' | sed 's/=.*$//g' | while read param_str
     do
       param=`eval echo '$'"$param_str"`
@@ -180,7 +186,7 @@ function file_create_files(){
     echo ""
     echo ""
     return;
-} 
+}
 
 # {{param}}参数替换成为真实值
 function file_replace_param(){
@@ -208,9 +214,9 @@ function file_read_and_replace_params(){
 }
 
 for arg in $*
-do 
+do
   split $arg
-  case ${array[0]} in       
+  case ${array[0]} in
     --s_dir)
     s_dir=${array[1]}
 		echo "s:"$s_dir
@@ -228,7 +234,7 @@ do
     file=${array[1]}
 	  echo "f:"$file
     CMD=${array[0]}
-    
+
     ;;
     --force)
      force=true
@@ -240,13 +246,13 @@ do
   esac
 done
 
-# main function 
+# main function
  case $CMD in
   --d_dir)
-    dir_config  
+    dir_config
     ;;
   --file)
-    file_config 
+    file_config
     ;;
     *)
     help
