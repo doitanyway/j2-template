@@ -91,9 +91,9 @@ function dir_exit(){
 }
 
 function dir_config(){
-   echo "源文件夹：" $s_dir
-   echo "目标文件夹" $d_dir
-   echo "变量文件" $vars_file
+   echo "source_dir：" $s_dir
+   echo "dis_dir" $d_dir
+   echo "vars_file" $vars_file
    cd $d_dir
    dd_dir=`pwd | awk '{print $1}'`
    echo "111:"$pwd_file
@@ -110,9 +110,9 @@ function file_config(){
    rh=(${file//,/ })
    source_file=${rh[0]}
    dist_file=${rh[1]}
-   echo "源文件："$source_file
-   echo "目标文件"$dist_file
-   echo "变量文件" $vars_file
+   echo "source_file："$source_file
+   echo "dist_file"$dist_file
+   echo "vars_file" $vars_file
 
    file_force
    # 初始化参数变量
